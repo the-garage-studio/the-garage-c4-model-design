@@ -1,0 +1,46 @@
+@startuml ContextDiagram
+
+!include ../../plantuml/C4_Context.puml
+
+title The Garage - System Context Diagram
+
+LAYOUT_WITH_LEGEND()
+
+' People who have contact or interact with the system
+
+Person(visitor, "Visitor", "Explores the public landing page to learn about The Garage and its features.")
+
+Person(collector, "Collector", "Registered user who collects vehicle cards, opens packs, manages collections and trades cards.")
+
+Person(admin, "Administrator", "Manages the platform, users, catalog, subscriptions and marketplace operations.")
+
+
+' Main Software System
+
+System(garage, "The Garage", "Digital platform for collecting, opening, trading and managing virtual vehicle cards.")
+
+
+' External Systems
+
+
+System_Ext(stripe, "Stripe", "Processes subscription payments securely.")
+
+System_Ext(email, "Email Service", "Sends verification emails, password recovery messages and platform notifications.")
+
+
+' Relationships or links
+
+
+Rel(visitor, garage, "Explores the platform")
+
+Rel(collector, garage, "Collects cards, opens packs, manages collection and trade in marketplace")
+
+Rel(admin, garage, "Administrates the platform")
+
+Rel(garage, stripe, "Processes subscription payments", "HTTPS")
+
+Rel(garage, email, "Sends emails", "SMTP / API")
+
+SHOW_LEGEND()
+
+@enduml
