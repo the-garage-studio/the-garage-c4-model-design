@@ -8,6 +8,9 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   export:
     runs-on: ubuntu-latest
@@ -15,34 +18,49 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
 
       - name: Install Graphviz
-        run: sudo apt-get update && sudo apt-get install -y graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
 
       - name: Download PlantUML
         run: |
-          wget https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+          curl -L https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-1.2025.4.jar -o plantuml.jar
 
-      - name: Create exports directory
-        run: mkdir -p exports
+      - name: Clean exports directory
+        run: |
+          rm -rf exports
+          mkdir -p exports
 
-      - name: Export PNG diagrams
+      - name: Export diagrams
         run: |
           find diagrams -name "*.puml" | while read file; do
-            output=$(dirname "$file" | sed 's/^diagrams/exports/')
-            mkdir -p "$output"
-            java -jar plantuml.jar -tpng -o "../../../$output" "$file"
+
+            relative=$(dirname "$file" | sed 's|^diagrams||')
+            mkdir -p "exports$relative"
+
+            java -jar plantuml.jar -tpng "$file"
+            java -jar plantuml.jar -tsvg "$file"
+
+            mv "$(dirname "$file")"/*.png "exports$relative/" 2>/dev/null || true
+            mv "$(dirname "$file")"/*.svg "exports$relative/" 2>/dev/null || true
+
           done
 
-      - name: Export SVG diagrams
-        run: |
-          find diagrams -name "*.puml" | while read file; do
-            output=$(dirname "$file" | sed 's/^diagrams/exports/')
-            mkdir -p "$output"
-            java -jar plantuml.jar -tsvg -o "../../../$output" "$file"
-          done
+      - name: Remove PlantUML jar
+        run: rm -f plantuml.jar
 
       - name: Commit exported diagrams
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update exported PlantUML diagrams"
+          commit_message: "chore(diagrams): update exported PlantUML diagrams"
+          file_pattern: exports/**
