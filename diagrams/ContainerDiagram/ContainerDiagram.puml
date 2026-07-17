@@ -1,0 +1,43 @@
+@startuml TheGarage_ContainerDiagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram - The Garage
+
+Person(visitor, "Visitor", "Explores the public landing page to learn about The Garage and its features.")
+Person(collector, "Collector", "Registered user who collects vehicle cards, opens packs, manages collections and trades cards.")
+Person(admin, "Administrator", "Manages the platform, users, catalog, subscriptions and marketplace operations.")
+
+System_Boundary(garage, "The Garage") {
+    Container(landing_page, "Landing Page", "React, TypeScript", "Public marketing website that presents The Garage, its features, pricing plans and provides access to registration and login.")
+
+    Container(web_app, "Web App", "React, TypeScript", "Single-page application used by visitors, collectors and administrators to browse, collect, trade and manage the platform.")
+
+    Container(api, "REST API", "Java 26, Spring Boot 3, OpenAPI/Swagger", "Backend service that exposes secure RESTful endpoints, handles business rules, manages authentication, and integrates external services.")
+    
+    ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
+}
+
+System_Ext(stripe, "Stripe", "Processes subscription payments securely.")
+System_Ext(email, "Email Service", "Sends verification emails, password recovery messages and platform notifications.")
+
+Rel(visitor, landing_page, "Browses information", "HTTPS")
+Rel(collector, landing_page, "Browses information", "HTTPS")
+Rel(admin, landing_page, "Browses information", "HTTPS")
+
+Rel(visitor, web_app, "Registers / Signs in", "HTTPS")
+
+Rel(collector, web_app, "Collects cards, opens packs, manages collection and trade", "HTTPS")
+Rel(admin, web_app, "Administrates the platform", "HTTPS")
+
+Rel(web_app, api, "Consumes catalog, collection, trade and admin services", "JSON/HTTPS")
+Rel(landing_page, api, "Retrieves public information", "JSON/HTTPS")
+
+Rel(api, database, "Reads and writes system data", "SQL")
+
+Rel(api, stripe, "Processes subscription payments", "HTTPS")
+Rel(api, email, "Sends emails", "SMTP/API")
+
+SHOW_LEGEND()
+@enduml
