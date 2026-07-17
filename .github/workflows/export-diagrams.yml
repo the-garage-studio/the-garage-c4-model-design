@@ -1,0 +1,48 @@
+name: Export PlantUML Diagrams
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: Download PlantUML
+        run: |
+          wget https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+
+      - name: Create exports directory
+        run: mkdir -p exports
+
+      - name: Export PNG diagrams
+        run: |
+          find diagrams -name "*.puml" | while read file; do
+            output=$(dirname "$file" | sed 's/^diagrams/exports/')
+            mkdir -p "$output"
+            java -jar plantuml.jar -tpng -o "../../../$output" "$file"
+          done
+
+      - name: Export SVG diagrams
+        run: |
+          find diagrams -name "*.puml" | while read file; do
+            output=$(dirname "$file" | sed 's/^diagrams/exports/')
+            mkdir -p "$output"
+            java -jar plantuml.jar -tsvg -o "../../../$output" "$file"
+          done
+
+      - name: Commit exported diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update exported PlantUML diagrams"
