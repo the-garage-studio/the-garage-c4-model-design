@@ -1,0 +1,39 @@
+@startuml Marketplace_ComponentDiagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title The Garage - Marketplace / Trading (Component Diagram)
+
+Person(collector, "Collector", "Registered user who collects vehicle cards, opens packs, manages collections and trades cards.")
+
+Container_Boundary(api, "REST API") {
+
+    Component(marketplace_controller, "Marketplace Controller", "Java, Spring Boot REST Controller", "Handles requests to list a card for sale, browse listings, and purchase a listed card.")
+
+    Component(listing_service, "Listing Service", "Java, Spring Service", "Manages the lifecycle of a card listing: create, browse, cancel.")
+    Component(trade_service, "Trade Service", "Java, Spring Service", "Orchestrates the purchase of a listed card: validates ownership and price, then atomically settles payment and card transfer.")
+
+    Component(wallet_service, "Wallet Service", "Java, Spring Service", "[Wallet BC] Debits the buyer and credits the seller in fichas as part of a trade.")
+    Component(user_card_repository, "User Card Repository", "Spring Data JPA Repository", "[Collection BC] Transfers card ownership from seller to buyer.")
+
+    Component(listing_repository, "Listing Repository", "Spring Data JPA Repository", "Reads and writes active, sold, and cancelled listings.")
+}
+
+ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
+
+Rel(collector, marketplace_controller, "Lists a card / Browses listings / Buys a listed card", "JSON/HTTPS")
+
+Rel(marketplace_controller, listing_service, "Delegates listing management")
+Rel(marketplace_controller, trade_service, "Delegates purchase execution")
+
+Rel(listing_service, listing_repository, "Reads and writes listings")
+
+Rel(trade_service, listing_repository, "Reads listing / Marks as sold")
+Rel(trade_service, wallet_service, "Debits buyer, credits seller")
+Rel(trade_service, user_card_repository, "Transfers card ownership")
+
+Rel(listing_repository, database, "Reads and writes listing data", "SQL")
+
+SHOW_LEGEND()
+@enduml
