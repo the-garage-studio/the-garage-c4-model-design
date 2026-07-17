@@ -21,6 +21,9 @@ Container_Boundary(api, "REST API") {
     Component(jwt_provider, "JWT Provider", "Java, Spring Component", "Generates and validates JSON Web Tokens for authenticated sessions.")
 
     Component(user_repository, "User Repository", "Spring Data JPA Repository", "Reads and writes user accounts, credentials, and roles.")
+
+    Component(notification_service, "Notification Service", "Java, Spring Service", "[Notifications BC] Provides email notification capabilities for other bounded contexts.")
+
 }
 
 ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
@@ -41,7 +44,8 @@ Rel(user_service, user_repository, "Reads and writes profile data")
 
 Rel(user_repository, database, "Reads and writes user data", "SQL")
 
-Rel(auth_service, email, "Sends verification and recovery emails", "SMTP/API")
+Rel(auth_service, notification_service, "Requests verification / recovery email")
+Rel(notification_service, email, "Sends verification and recovery emails", "SMTP/API")
 
 SHOW_LEGEND()
 @enduml
