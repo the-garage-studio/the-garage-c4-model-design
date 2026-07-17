@@ -20,7 +20,6 @@ Container_Boundary(api, "REST API") {
     Component(pack_opening_service, "Pack Opening Service", "Java, Spring Service", "[Collection BC] Owns the collector's unopened pack inventory. Receives granted packs from active subscriptions.")
 
     Component(subscription_repository, "Subscription Repository", "Spring Data JPA Repository", "Reads and writes collector subscriptions, plan type, and status.")
-    Component(subscription_entity, "Subscription Entity", "Java Entity", "Represents a collector's subscription: plan, status, renewal date, and entitled packs per period.")
 }
 
 ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
@@ -38,7 +37,6 @@ Rel(billing_service, subscription_service, "Updates status based on payment outc
 Rel(pack_grant_scheduler, subscription_repository, "Reads active subscriptions")
 Rel(pack_grant_scheduler, pack_opening_service, "Grants entitled packs")
 
-Rel(subscription_repository, subscription_entity, "Maps data to subscription model")
 Rel(subscription_repository, database, "Reads and writes subscription data", "SQL")
 
 SHOW_LEGEND()
