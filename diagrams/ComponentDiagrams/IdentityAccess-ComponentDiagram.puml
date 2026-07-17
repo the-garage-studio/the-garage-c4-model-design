@@ -1,0 +1,47 @@
+@startuml IdentityAccess_ComponentDiagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title The Garage - Identity & Access (Component Diagram)
+
+Person(visitor, "Visitor", "Explores the public landing page to learn about The Garage and its features.")
+Person(collector, "Collector", "Registered user who collects vehicle cards, opens packs, manages collections and trades cards.")
+Person(admin, "Administrator", "Manages the platform, users, catalog, subscriptions and marketplace operations.")
+
+System_Ext(email, "Email Service", "Sends verification emails, password recovery messages and platform notifications.")
+
+Container_Boundary(api, "REST API") {
+
+    Component(auth_controller, "Auth Controller", "Java, Spring Boot REST Controller", "Handles registration, login, logout, token refresh, and password recovery requests.")
+    Component(user_controller, "User Controller", "Java, Spring Boot REST Controller", "Handles user profile retrieval, update, and account management requests.")
+
+    Component(auth_service, "Auth Service", "Java, Spring Service", "Validates credentials, issues and refreshes JWT tokens, and orchestrates the password recovery flow.")
+    Component(user_service, "User Service", "Java, Spring Service", "Manages user profile data, role assignment, and account status.")
+    Component(jwt_provider, "JWT Provider", "Java, Spring Component", "Generates and validates JSON Web Tokens for authenticated sessions.")
+
+    Component(user_repository, "User Repository", "Spring Data JPA Repository", "Reads and writes user accounts, credentials, and roles.")
+}
+
+ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
+
+Rel(visitor, auth_controller, "Registers / Requests password recovery", "JSON/HTTPS")
+Rel(collector, auth_controller, "Logs in / Refreshes session", "JSON/HTTPS")
+Rel(admin, auth_controller, "Logs in", "JSON/HTTPS")
+
+Rel(collector, user_controller, "Retrieves / Updates own profile", "JSON/HTTPS")
+Rel(admin, user_controller, "Manages user accounts", "JSON/HTTPS")
+
+Rel(auth_controller, auth_service, "Delegates authentication logic")
+Rel(user_controller, user_service, "Delegates profile logic")
+
+Rel(auth_service, jwt_provider, "Generates and validates tokens")
+Rel(auth_service, user_repository, "Reads credentials and roles")
+Rel(user_service, user_repository, "Reads and writes profile data")
+
+Rel(user_repository, database, "Reads and writes user data", "SQL")
+
+Rel(auth_service, email, "Sends verification and recovery emails", "SMTP/API")
+
+SHOW_LEGEND()
+@enduml
