@@ -1,0 +1,37 @@
+@startuml Administration_ComponentDiagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title The Garage - Administration (Component Diagram)
+
+Person(admin, "Administrator", "Manages the platform, users, catalog, subscriptions and marketplace operations.")
+
+Container_Boundary(api, "REST API") {
+
+    Component(admin_controller, "Admin Controller", "Java, Spring Boot REST Controller", "Handles administrative requests for user management, catalog management, platform monitoring, and support operations.")
+
+    Component(admin_service, "Admin Service", "Java, Spring Service", "Coordinates administrative operations by delegating to the domain services of other bounded contexts.")
+
+    Component(user_service, "User Service", "Java, Spring Service", "[Identity & Access BC] Manages user profile data, role assignment, and account status.")
+    Component(catalog_service, "Catalog Service", "Java, Spring Service", "[Catalog BC] Applies business rules for card and pack availability, pricing, and rarity distribution.")
+    Component(subscription_service, "Subscription Service", "Java, Spring Service", "[Subscription BC] Manages the collector's subscription lifecycle.")
+    Component(listing_service, "Listing Service", "Java, Spring Service", "[Marketplace BC] Manages the lifecycle of a card listing, used here for moderation.")
+    Component(wallet_service, "Wallet Service", "Java, Spring Service", "[Wallet BC] Core ledger logic, used here for manual balance adjustments in support cases.")
+    Component(notification_service, "Notification Service", "Java, Spring Service", "[Notifications BC] Central entry point for sending notifications, used here to review a user's notification history.")
+}
+
+Rel(admin, admin_controller, "Manages users, catalog, subscriptions, moderates marketplace, and handles support cases", "JSON/HTTPS")
+
+Rel(admin_controller, admin_service, "Delegates administrative logic")
+
+Rel(admin_service, user_service, "Suspends / reactivates / changes roles")
+Rel(admin_service, catalog_service, "Creates / updates / deletes cards and packs")
+Rel(admin_service, subscription_service, "Reviews / overrides subscriptions")
+Rel(admin_service, listing_service, "Removes / flags marketplace listings")
+Rel(admin_service, wallet_service, "Manually adjusts ficha balance for support cases")
+Rel(admin_service, notification_service, "Reviews a collector's notification history")
+
+
+SHOW_LEGEND()
+@enduml
