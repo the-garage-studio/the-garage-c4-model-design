@@ -1,0 +1,43 @@
+@startuml Subscription_ComponentDiagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title The Garage - Subscription & Billing (Component Diagram)
+
+Person(collector, "Collector", "Registered user who collects vehicle cards, opens packs, manages collections and trades cards.")
+
+System_Ext(stripe, "Stripe", "Processes subscription payments securely.")
+
+Container_Boundary(api, "REST API") {
+
+    Component(subscription_controller, "Subscription Controller", "Java, Spring Boot REST Controller", "Handles requests to view available plans, subscribe, cancel, and view current subscription status.")
+
+    Component(subscription_service, "Subscription Service", "Java, Spring Service", "Manages the collector's subscription lifecycle: activation, renewal, and cancellation.")
+    Component(billing_service, "Billing Service", "Java, Spring Service", "Orchestrates recurring charges via Stripe and reconciles subscription status based on payment outcomes.")
+    Component(pack_grant_scheduler, "Pack Grant Scheduler", "Java, Spring Scheduled Component", "Runs periodically to grant the packs entitled by each active plan to the collector's pack inventory.")
+
+    Component(pack_opening_service, "Pack Opening Service", "Java, Spring Service", "[Collection BC] Owns the collector's unopened pack inventory. Receives granted packs from active subscriptions.")
+
+    Component(subscription_repository, "Subscription Repository", "Spring Data JPA Repository", "Reads and writes collector subscriptions, plan type, and status.")
+}
+
+ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
+
+Rel(collector, subscription_controller, "Views plans / Subscribes / Cancels / Views status", "JSON/HTTPS")
+
+Rel(subscription_controller, subscription_service, "Delegates subscription logic")
+
+Rel(subscription_service, subscription_repository, "Reads and writes subscription data")
+Rel(subscription_service, billing_service, "Triggers recurring charge")
+
+Rel(billing_service, stripe, "Processes subscription payments", "HTTPS")
+Rel(billing_service, subscription_service, "Updates status based on payment outcome")
+
+Rel(pack_grant_scheduler, subscription_repository, "Reads active subscriptions")
+Rel(pack_grant_scheduler, pack_opening_service, "Grants entitled packs")
+
+Rel(subscription_repository, database, "Reads and writes subscription data", "SQL")
+
+SHOW_LEGEND()
+@enduml

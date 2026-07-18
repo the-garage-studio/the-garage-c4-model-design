@@ -1,0 +1,41 @@
+@startuml Wallet_ComponentDiagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title The Garage - Wallet / Virtual Currency (Component Diagram)
+
+Person(collector, "Collector", "Registered user who collects vehicle cards, opens packs, manages collections and trades cards.")
+
+System_Ext(stripe, "Stripe", "Processes payments securely.")
+
+Container_Boundary(api, "REST API") {
+
+    Component(wallet_controller, "Wallet Controller", "Java, Spring Boot REST Controller", "Handles requests to view balance, purchase fichas with real money, and view transaction history.")
+
+    Component(token_purchase_service, "Token Purchase Service", "Java, Spring Service", "Orchestrates the purchase of fichas with real money via Stripe, and credits the wallet upon successful payment.")
+    Component(wallet_service, "Wallet Service", "Java, Spring Service", "Core ledger logic: credits and debits ficha balances, and records every transaction. Consumed directly by Marketplace, Collection and Subscription for spending or crediting fichas.")
+
+    Component(wallet_repository, "Wallet Repository", "Spring Data JPA Repository", "Reads and writes each collector's current ficha balance.")
+    Component(wallet_transaction_repository, "Wallet Transaction Repository", "Spring Data JPA Repository", "Reads and writes the history of ficha credits and debits.")
+}
+
+ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
+
+Rel(collector, wallet_controller, "Views balance / Buys fichas / Views transaction history", "JSON/HTTPS")
+
+Rel(wallet_controller, token_purchase_service, "Delegates ficha purchase")
+Rel(wallet_controller, wallet_service, "Delegates balance and history queries")
+
+Rel(token_purchase_service, stripe, "Charges real money for fichas", "HTTPS")
+Rel(token_purchase_service, wallet_service, "Credits fichas after successful payment")
+
+Rel(wallet_service, wallet_repository, "Reads and updates balance")
+Rel(wallet_service, wallet_transaction_repository, "Records transaction")
+
+Rel(wallet_repository, database, "Reads and writes balance data", "SQL")
+Rel(wallet_transaction_repository, database, "Reads and writes transaction history", "SQL")
+
+
+SHOW_LEGEND()
+@enduml
