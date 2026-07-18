@@ -1,0 +1,42 @@
+@startuml Collection_ComponentDiagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title The Garage - Collection (Component Diagram)
+
+Person(collector, "Collector", "Registered user who collects vehicle cards, opens packs, manages collections and trades cards.")
+
+Container_Boundary(api, "REST API") {
+
+    Component(collection_controller, "Collection Controller", "Java, Spring Boot REST Controller", "Handles requests to view the collection, view unopened packs, and open packs.")
+
+    Component(collection_service, "Collection Service", "Java, Spring Service", "Manages the collector's owned cards inventory.")
+    Component(pack_opening_service, "Pack Opening Service", "Java, Spring Service", "Opens an unopened pack from the collector's inventory, generating cards based on rarity odds.")
+
+    Component(catalog_service, "Catalog Service", "Java, Spring Service", "[Catalog BC] Provides pack definitions, card pools, and rarity odds.")
+
+    Component(user_card_repository, "User Card Repository", "Spring Data JPA Repository", "Reads and writes owned cards per collector.")
+    Component(pack_inventory_repository, "Pack Inventory Repository", "Spring Data JPA Repository", "Reads and writes unopened packs owned by each collector, regardless of acquisition source.")
+
+}
+
+ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
+
+Rel(collector, collection_controller, "Views collection / Views unopened packs / Opens a pack", "JSON/HTTPS")
+
+Rel(collection_controller, collection_service, "Delegates collection queries")
+Rel(collection_controller, pack_opening_service, "Delegates pack opening")
+
+Rel(pack_opening_service, catalog_service, "Requests pack contents and rarity odds")
+Rel(pack_opening_service, pack_inventory_repository, "Marks pack as opened")
+Rel(pack_opening_service, user_card_repository, "Adds generated cards")
+
+Rel(collection_service, user_card_repository, "Reads owned cards")
+
+Rel(user_card_repository, database, "Reads and writes card ownership data", "SQL")
+Rel(pack_inventory_repository, database, "Reads and writes pack inventory data", "SQL")
+
+
+SHOW_LEGEND()
+@enduml

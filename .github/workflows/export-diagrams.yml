@@ -1,0 +1,71 @@
+name: Export PlantUML Diagrams
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PLANTUML_VERSION: "1.2025.4"
+
+jobs:
+  export:
+    name: Export PlantUML Diagrams
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
+      - name: Download PlantUML
+        run: |
+          curl -L \
+          https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/plantuml-${PLANTUML_VERSION}.jar \
+          -o plantuml.jar
+
+      - name: Clean exports directory
+        run: |
+          rm -rf exports
+          mkdir -p exports
+
+      - name: Export diagrams
+        run: |
+          find diagrams -name "*.puml" | while read file; do
+
+            relative=$(dirname "$file" | sed 's|^diagrams||')
+            mkdir -p "exports$relative"
+
+            java -jar plantuml.jar -tpng "$file"
+
+            png="$(basename "$file" .puml).png"
+            mv "$(dirname "$file")/$png" "exports$relative/"
+
+          done
+
+      - name: Remove PlantUML temporary files
+        run: |
+          rm -f plantuml.jar
+
+      - name: Commit exported diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs(diagrams): update exported PlantUML diagrams"
+          file_pattern: "exports/**/*.png"
