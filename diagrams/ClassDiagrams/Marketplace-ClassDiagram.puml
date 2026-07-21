@@ -1,0 +1,102 @@
+@startuml Marketplace-ClassDiagram
+
+skinparam classAttributeIconSize 0
+
+title The Garage - Marketplace / Trading (Class Diagram)
+
+' Controller
+class MarketplaceController <<Controller>> {
+    +createListing()
+    +browseListings()
+    +cancelListing()
+    +purchaseListing()
+}
+
+' Services
+class ListingService <<Service>> {
+    +createListing()
+    +browseListings()
+    +cancelListing()
+}
+
+class TradeService <<Service>> {
+    +purchaseListing()
+    +validatePurchase()
+    +completeTrade()
+}
+
+' Repository
+interface ListingRepository <<Repository>> {
+    +save()
+    +findById()
+    +findActiveListings()
+}
+
+interface TradeRepository <<Repository>> {
+    +save()
+    +findByBuyer()
+    +findBySeller()
+}
+
+' External Bounded Contexts
+interface WalletACL {
+    +debit()
+    +credit()
+}
+
+interface CollectionACL {
+    +transferOwnership()
+}
+
+' Entities
+class Listing <<Entity>> {
+    -id : Long
+    -sellerId : Long
+    -cardId : Long
+    -price : Price
+    -status : ListingStatus
+    -createdAt : LocalDateTime
+}
+
+class Trade <<Entity>> {
+    -id : Long
+    -buyerId : Long
+    -sellerId : Long
+    -listingId : Long
+    -completedAt : LocalDateTime
+}
+
+' Value Objects
+class Price <<Value Object>> {
+    -amount : Integer
+}
+
+' Enums
+enum ListingStatus {
+    ACTIVE
+    SOLD
+    CANCELLED
+}
+
+' 
+' Relationships
+MarketplaceController --> ListingService
+MarketplaceController --> TradeService
+
+ListingService --> ListingRepository
+
+TradeService --> ListingRepository
+TradeService --> TradeRepository
+
+TradeService --> WalletACL
+TradeService --> CollectionACL
+
+ListingRepository --> Listing
+TradeRepository --> Trade
+
+Listing *-- Price
+Listing --> ListingStatus
+
+Trade --> Listing
+
+@enduml
