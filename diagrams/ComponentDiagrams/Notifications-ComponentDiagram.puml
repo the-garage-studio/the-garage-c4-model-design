@@ -13,7 +13,7 @@ Container_Boundary(api, "REST API") {
 
     Component(notification_controller, "Notification Controller", "Java, Spring Boot REST Controller", "Handles requests to view notification history.")
 
-    Component(notification_service, "Notification Service", "Java, Spring Service", "Central entry point for sending notifications. Consumed directly by Identity & Access, Wallet, Subscription and Marketplace to notify collectors of relevant events.")
+    Component(notification_service, "Notification Service", "Java, Spring Service", "Coordinates notification creation, persistence and delivery through external providers. Consumed directly by Identity & Access, Wallet, Subscription and Marketplace to notify collectors of relevant events.")
     Component(email_sender_adapter, "Email Sender Adapter", "Java, Spring Component", "Formats and dispatches notification content to the external Email Service.")
 
     Component(notification_repository, "Notification Repository", "Spring Data JPA Repository", "Reads and writes sent notifications, delivery status, and recipient.")
