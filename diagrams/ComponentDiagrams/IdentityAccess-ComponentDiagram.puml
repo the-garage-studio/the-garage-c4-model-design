@@ -22,7 +22,7 @@ Container_Boundary(api, "REST API") {
 
     Component(user_repository, "User Repository", "Spring Data JPA Repository", "Reads and writes user accounts, credentials, and roles.")
 
-    Component(notification_service, "Notification Service", "Java, Spring Service", "[Notifications BC] Provides email notification capabilities for other bounded contexts.")
+    Component(notification_acl, "Notification ACL", "Java Interface", "Translates Identity & Access requests into Notification operations.")
 
 }
 
@@ -44,8 +44,9 @@ Rel(user_service, user_repository, "Reads and writes profile data")
 
 Rel(user_repository, database, "Reads and writes user data", "SQL")
 
-Rel(auth_service, notification_service, "Requests verification / recovery email")
-Rel(notification_service, email, "Sends verification and recovery emails", "SMTP/API")
+Rel(auth_service, notification_acl, "Requests verification / recovery emails")
+
+Rel(notification_acl, email, "Sends verification and recovery emails", "SMTP/API")
 
 SHOW_LEGEND()
 @enduml
