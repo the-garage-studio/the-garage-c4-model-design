@@ -15,7 +15,7 @@ Container_Boundary(api, "REST API") {
 
     Component(pack_opening_service, "Pack Opening Service", "Java, Spring Service", "Opens an unopened pack from the collector's inventory by requesting pack definitions and rarity odds.")
 
-    Component(catalog_acl, "Catalog ACL", "Java Interface", "Provides pack definitions, card pools and rarity odds.")
+    Component(catalog_acl, "Catalog ACL", "Java Interface", "Translates Collection requests into Catalog operations.")
 
     Component(user_card_repository, "User Card Repository", "Spring Data JPA Repository", "Reads and writes owned cards per collector.")
 
@@ -29,7 +29,7 @@ Rel(collector, collection_controller, "Views collection / Views unopened packs /
 Rel(collection_controller, collection_service, "Delegates collection queries")
 Rel(collection_controller, pack_opening_service, "Delegates pack opening")
 
-Rel(pack_opening_service, catalog_acl, "Requests pack definitions and rarity odds")
+Rel(pack_opening_service, catalog_acl, "Requests pack definitions")
 Rel(pack_opening_service, pack_inventory_repository, "Marks pack as opened")
 Rel(pack_opening_service, user_card_repository, "Adds generated cards")
 

@@ -13,11 +13,11 @@ Container_Boundary(api, "REST API") {
 
     Component(wallet_controller, "Wallet Controller", "Java, Spring Boot REST Controller", "Handles requests to view balance, purchase fichas with real money, and view transaction history.")
 
-    Component(token_purchase_service, "Token Purchase Service", "Java, Spring Service", "Orchestrates the purchase of fichas with real money via Stripe, and credits the wallet upon successful payment.")
-    Component(wallet_service, "Wallet Service", "Java, Spring Service", "Core ledger logic: credits and debits ficha balances, and records every transaction. Consumed directly by Marketplace, Collection and Subscription for spending or crediting fichas.")
+    Component(token_purchase_service, "Token Purchase Service", "Java, Spring Service", "Orchestrates ficha purchases through Stripe and credits the collector's wallet after successful payment.")
+    Component(wallet_service, "Wallet Service", "Java, Spring Service", "Maintains wallet balances by crediting, debiting and recording every transaction.")
 
-    Component(wallet_repository, "Wallet Repository", "Spring Data JPA Repository", "Reads and writes each collector's current ficha balance.")
-    Component(wallet_transaction_repository, "Wallet Transaction Repository", "Spring Data JPA Repository", "Reads and writes the history of ficha credits and debits.")
+    Component(wallet_repository, "Wallet Repository", "Spring Data JPA Repository", "Reads and writes wallet balances.")
+    Component(wallet_transaction_repository, "Wallet Transaction Repository", "Spring Data JPA Repository", "Reads and writes wallet transactions.")
 }
 
 ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")

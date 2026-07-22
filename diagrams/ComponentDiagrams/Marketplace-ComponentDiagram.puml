@@ -12,11 +12,11 @@ Container_Boundary(api, "REST API") {
     Component(marketplace_controller, "Marketplace Controller", "Java, Spring Boot REST Controller", "Handles requests to list a card for sale, browse listings, and purchase a listed card.")
 
     Component(listing_service, "Listing Service", "Java, Spring Service", "Manages the lifecycle of a card listing: create, browse, cancel.")
-    Component(trade_service, "Trade Service", "Java, Spring Service", "Orchestrates the purchase of a listed card by validating the listing, processing the payment, and transferring card ownership.")
+    Component(trade_service, "Trade Service", "Java, Spring Service", "Orchestrates the purchase of a listed card by validating the listing, settling the payment and transferring ownership.")
 
-    Component(wallet_acl, "Wallet ACL", "Java Interface", "[Wallet BC] Provides access to wallet operations such as debiting the buyer and crediting the seller.")
+    Component(wallet_acl, "Wallet ACL", "Java Interface", "Translates Marketplace requests into Wallet operations.")
 
-    Component(collection_acl, "Collection ACL", "Java Interface", "[Collection BC] Provides access to card ownership transfer operations.")
+    Component(collection_acl, "Collection ACL", "Java Interface", "Translates Marketplace requests into Collection operations.")
 
     Component(listing_repository, "Listing Repository", "Spring Data JPA Repository", "Reads and writes active, sold, and cancelled listings.")
 }
