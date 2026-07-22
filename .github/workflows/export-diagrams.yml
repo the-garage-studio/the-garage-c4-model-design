@@ -53,10 +53,10 @@ jobs:
             relative=$(dirname "$file" | sed 's|^diagrams||')
             mkdir -p "exports$relative"
 
-            java -jar plantuml.jar -tpng "$file"
+            java -jar plantuml.jar -tsvg "$file"
 
-            png="$(basename "$file" .puml).png"
-            mv "$(dirname "$file")/$png" "exports$relative/"
+            svg="$(basename "$file" .puml).svg"
+            mv "$(dirname "$file")/$svg" "exports$relative/"
 
           done
 
@@ -68,4 +68,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "docs(diagrams): update exported PlantUML diagrams"
-          file_pattern: "exports/**/*.png"
+          file_pattern: "exports/**/*.svg"
