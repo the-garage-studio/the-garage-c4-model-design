@@ -1,0 +1,108 @@
+@startuml Wallet-ClassDiagram
+
+skinparam classAttributeIconSize 0
+
+title The Garage - Wallet / Virtual Currency (Class Diagram)
+
+' Controller
+class WalletController <<Controller>> {
+    +getBalance()
+    +purchaseTokens()
+    +getTransactionHistory()
+}
+
+' Services
+class WalletService <<Service>> {
+    +credit()
+    +debit()
+    +getBalance()
+    +getTransactionHistory()
+}
+
+class TokenPurchaseService <<Service>> {
+    +purchaseTokens()
+    +confirmPayment()
+}
+
+' Repository
+interface WalletRepository <<Repository>> {
+    +save()
+    +findByCollectorId()
+}
+
+interface WalletTransactionRepository <<Repository>> {
+    +save()
+    +findByWalletId()
+}
+
+' External Services
+interface PaymentGateway {
+    +charge()
+}
+
+' Entities
+class Wallet <<Entity>> {
+    -id : Long
+    -collectorId : Long
+    -balance : TokenBalance
+}
+
+class WalletTransaction <<Entity>> {
+    -id : Long
+    -amount : Integer
+    -type : TransactionType
+    -description : String
+    -createdAt : LocalDateTime
+}
+
+' Value Objects
+class TokenBalance <<Value Object>> {
+    -amount : Integer
+}
+
+class Payment <<Value Object>> {
+    -amount : Money
+    -paymentReference : String
+}
+
+class Money <<Value Object>> {
+    -amount : Decimal
+    -currency : Currency
+}
+
+' Enums
+enum TransactionType {
+    PURCHASE
+    REWARD
+    SPEND
+    REFUND
+    ADMIN_ADJUSTMENT
+}
+
+enum Currency {
+    USD
+}
+
+' Relationships
+WalletController --> TokenPurchaseService
+WalletController --> WalletService
+
+TokenPurchaseService --> PaymentGateway
+TokenPurchaseService --> WalletService
+
+WalletService --> WalletRepository
+WalletService --> WalletTransactionRepository
+
+WalletRepository --> Wallet
+WalletTransactionRepository --> WalletTransaction
+
+Wallet *-- TokenBalance
+Wallet "1" *-- "*" WalletTransaction
+
+WalletTransaction *-- Payment
+Payment *-- Money
+
+WalletTransaction --> TransactionType
+Money --> Currency
+
+@enduml

@@ -1,0 +1,95 @@
+@startuml Catalog_ClassDiagram
+
+skinparam classAttributeIconSize 0
+
+title The Garage - Catalog (Class Diagram)
+
+' Controllers
+class CatalogController <<Controller>> {
+    +getCards()
+    +getCard(cardId)
+    +getPacks()
+    +getPack(packId)
+}
+
+' Services
+class CatalogService <<Service>> {
+    +getCards()
+    +getCard()
+    +getPacks()
+    +getPack()
+    +getPackDefinition()
+}
+
+' Repositories
+interface CardRepository <<Repository>> {
+    +findAll()
+    +findById()
+    +save()
+}
+
+interface PackRepository <<Repository>> {
+    +findAll()
+    +findById()
+    +save()
+}
+
+' Entities
+class Card <<Entity>> {
+    -id : Long
+    -name : String
+    -description : String
+    -imageUrl : String
+    -price : Money
+    -rarity : Rarity
+    -manufacturer : Manufacturer
+}
+
+class Pack <<Entity>> {
+    -id : Long
+    -name : String
+    -price : Money
+    -cardsPerPack : Integer
+}
+
+class PackCard <<Entity>> {
+    -probability : Double
+}
+
+' Value Objects
+class Money <<Value Object>> {
+    -amount : Decimal
+    -currency : String
+}
+
+class Manufacturer <<Value Object>> {
+    -name : String
+}
+
+' Enums
+enum Rarity {
+    COMMON
+    RARE
+    EPIC
+    LEGENDARY
+}
+
+' Relationships
+CatalogController --> CatalogService
+
+CatalogService --> CardRepository
+CatalogService --> PackRepository
+
+CardRepository --> Card
+PackRepository --> Pack
+
+Pack "1" *-- "*" PackCard
+PackCard --> Card
+
+Card --> Money
+Pack --> Money
+
+Card --> Manufacturer
+Card --> Rarity
+
+@enduml

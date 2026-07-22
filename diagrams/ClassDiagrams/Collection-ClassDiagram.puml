@@ -1,0 +1,86 @@
+@startuml Collection-ClassDiagram
+
+skinparam classAttributeIconSize 0
+
+title The Garage - Collection (Class Diagram)
+
+' Controller
+class CollectionController <<Controller>> {
+    +getCollection()
+    +getPackInventory()
+    +openPack()
+}
+
+' Services
+class CollectionService <<Service>> {
+    +getCollection()
+    +getPackInventory()
+}
+
+class PackOpeningService <<Service>> {
+    +openPack()
+    +grantPack()
+}
+
+' ACL
+interface CatalogACL <<ACL>> {
+    +getPackDefinition()
+    +getCardPool()
+    +getRarityOdds()
+}
+
+' Repositories
+interface CollectionRepository <<Repository>> {
+    +save()
+    +findByCollectorId()
+}
+
+interface PackInventoryRepository <<Repository>> {
+    +save()
+    +findByCollectorId()
+}
+
+' Entities
+class UserCard <<Entity>> {
+    -id : Long
+    -collectorId : Long
+    -cardId : Long
+    -obtainedAt : LocalDateTime
+}
+
+class PackInventory <<Entity>> {
+    -id : Long
+    -collectorId : Long
+    -packType : PackType
+    -status : PackStatus
+    -grantedAt : LocalDateTime
+}
+
+' Value Objects
+class PackType <<Value Object>> {
+    -name : String
+}
+
+' Enums
+enum PackStatus {
+    UNOPENED
+    OPENED
+}
+
+' Relationships
+CollectionController --> CollectionService
+CollectionController --> PackOpeningService
+
+CollectionService --> CollectionRepository
+
+PackOpeningService --> CatalogACL
+PackOpeningService --> CollectionRepository
+PackOpeningService --> PackInventoryRepository
+
+CollectionRepository --> UserCard
+PackInventoryRepository --> PackInventory
+
+PackInventory *-- PackType
+PackInventory --> PackStatus
+
+@enduml
