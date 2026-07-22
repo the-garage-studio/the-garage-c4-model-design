@@ -1,0 +1,82 @@
+@startuml Administration-ClassDiagram
+
+skinparam classAttributeIconSize 0
+
+title The Garage - Administration (Class Diagram)
+
+
+' Controllers
+class AdminController <<Controller>> {
+    +suspendUser(userId)
+    +reactivateUser(userId)
+    +changeUserRole(userId, role)
+    +createCard(card)
+    +updateCard(card)
+    +deleteCard(cardId)
+    +createPack(pack)
+    +updatePack(pack)
+    +deletePack(packId)
+    +reviewSubscription(subscriptionId)
+    +overrideSubscription(subscriptionId)
+    +removeListing(listingId)
+    +flagListing(listingId)
+    +adjustWalletBalance(userId, amount)
+    +getNotificationHistory(userId)
+}
+
+' Services
+class AdminService <<Service>> {
+    +manageUsers()
+    +manageCatalog()
+    +manageSubscriptions()
+    +moderateMarketplace()
+    +handleSupportCase()
+}
+
+
+' ACL Interfaces
+interface IdentityAccessACL <<ACL>> {
+    +suspendUser()
+    +reactivateUser()
+    +changeRole()
+}
+
+interface CatalogACL <<ACL>> {
+    +createCard()
+    +updateCard()
+    +deleteCard()
+    +createPack()
+    +updatePack()
+    +deletePack()
+}
+
+interface SubscriptionACL <<ACL>> {
+    +reviewSubscription()
+    +overrideSubscription()
+}
+
+interface MarketplaceACL <<ACL>> {
+    +removeListing()
+    +flagListing()
+}
+
+interface WalletACL <<ACL>> {
+    +adjustBalance()
+}
+
+interface NotificationACL <<ACL>> {
+    +getNotificationHistory()
+}
+
+
+' Relationships
+AdminController --> AdminService
+
+AdminService --> IdentityAccessACL
+AdminService --> CatalogACL
+AdminService --> SubscriptionACL
+AdminService --> MarketplaceACL
+AdminService --> WalletACL
+AdminService --> NotificationACL
+
+@enduml
