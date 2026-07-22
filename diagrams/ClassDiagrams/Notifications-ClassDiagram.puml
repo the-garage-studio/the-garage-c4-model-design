@@ -1,0 +1,84 @@
+@startuml Notifications-ClassDiagram
+
+skinparam classAttributeIconSize 0
+
+title The Garage - Notifications (Class Diagram)
+
+' Controller
+class NotificationController <<Controller>> {
+    +getNotificationHistory(recipientId: Long)
+}
+
+' Services
+class NotificationService <<Service>> {
+    +sendNotification(notification: Notification)
+    +getNotificationHistory(recipientId: Long)
+    +markAsSent(notificationId: Long)
+    +markAsFailed(notificationId: Long)
+}
+
+class EmailSenderAdapter <<Component>> {
+    +send(notification: Notification)
+}
+
+' Repository
+interface NotificationRepository <<Repository>> {
+    +save(notification: Notification)
+    +findByRecipientId(recipientId: Long)
+    +findByStatus(status: NotificationStatus)
+}
+
+' Entity
+class Notification <<Entity>> {
+    -id : Long
+    -recipientId : Long
+    -recipientEmail : EmailAddress
+    -content : NotificationContent
+    -type : NotificationType
+    -status : NotificationStatus
+    -sentAt : LocalDateTime
+}
+
+' Value Objects
+class EmailAddress <<Value Object>> {
+    -value : String
+}
+
+class NotificationContent <<Value Object>> {
+    -subject : String
+    -body : String
+}
+
+' Enums
+enum NotificationType {
+    EMAIL_VERIFICATION
+    PASSWORD_RECOVERY
+    SUBSCRIPTION_CREATED
+    SUBSCRIPTION_RENEWED
+    PACK_PURCHASED
+    LISTING_SOLD
+    TRADE_COMPLETED
+    SYSTEM
+}
+
+enum NotificationStatus {
+    PENDING
+    SENT
+    FAILED
+}
+
+
+' Relationships
+NotificationController --> NotificationService
+
+NotificationService --> EmailSenderAdapter
+NotificationService --> NotificationRepository
+
+NotificationRepository --> Notification
+
+Notification *-- EmailAddress
+Notification *-- NotificationContent
+Notification --> NotificationType
+Notification --> NotificationStatus
+
+@enduml

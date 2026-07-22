@@ -5,32 +5,40 @@ LAYOUT_WITH_LEGEND()
 
 title The Garage - Catalog (Component Diagram)
 
-Person(collector, "Collector", "Registered user who collects vehicle cards, opens packs, manages collections and trades cards.")
+Person(collector, "Collector", "Browses the vehicle card catalog and available packs.")
+Person(admin, "Administrator", "Manages cards and pack definitions.")
 
 Container_Boundary(api, "REST API") {
 
-    Component(catalog_controller, "Catalog Controller", "Java, Spring Boot REST Controller", "Handles requests to browse the vehicle card catalog and available packs.")
+    Component(catalog_controller,"Catalog Controller","Java, Spring Boot REST Controller","Handles requests to browse the vehicle card catalog and available packs.")
 
-    Component(catalog_service, "Catalog Service", "Java, Spring Service", "Applies business rules for card and pack availability, pricing, and rarity distribution. Consumed directly by Administration for management operations.")
+    Component(catalog_service, "Catalog Service","Java, Spring Service","Applies business rules for card availability, pack definitions, pricing and rarity distribution.")
 
-    Component(card_repository, "Card Repository", "Spring Data JPA Repository", "Reads and writes vehicle card definitions.")
-    Component(pack_repository, "Pack Repository", "Spring Data JPA Repository", "Reads and writes pack definitions and their card pools.")
+    Component(catalog_api,"Catalog API","Java Interface","Provides catalog information to other bounded contexts.")
 
+    Component(card_repository,"Card Repository","Spring Data JPA Repository","Reads and writes vehicle card definitions.")
+
+    Component(pack_repository, "Pack Repository","Spring Data JPA Repository","Reads and writes pack definitions and their card pools.")
 }
 
-ContainerDb(database, "Database", "MySQL", "Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
+ContainerDb(database,"Database","MySQL","Stores users, cards, packs, collections, trades, subscriptions and transaction data.")
 
-Rel(collector, catalog_controller, "Browses cards and packs", "JSON/HTTPS")
+Rel(collector, catalog_controller,"Browses cards and packs","JSON/HTTPS")
 
-Rel(catalog_controller, catalog_service, "Delegates catalog logic")
+Rel(admin, catalog_controller,"Manages cards and packs","JSON/HTTPS")
 
-Rel(catalog_service, card_repository, "Reads card definitions")
-Rel(catalog_service, pack_repository, "Reads pack definitions")
+Rel(catalog_controller, catalog_service,"Delegates catalog logic")
 
+Rel(catalog_api, catalog_service,"Delegates catalog operations")
 
-Rel(card_repository, database, "Reads and writes card data", "SQL")
-Rel(pack_repository, database, "Reads and writes pack data", "SQL")
+Rel(catalog_service, card_repository,"Reads card definitions")
 
+Rel(catalog_service, pack_repository,"Reads pack definitions")
+
+Rel(card_repository, database,"Reads and writes card data","SQL")
+
+Rel(pack_repository, database,"Reads and writes pack data","SQL")
 
 SHOW_LEGEND()
+
 @enduml

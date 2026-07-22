@@ -1,0 +1,99 @@
+@startuml Subscription-ClassDiagram
+
+skinparam classAttributeIconSize 0
+
+title The Garage - Subscription & Billing (Class Diagram)
+
+' Controller
+class SubscriptionController <<Controller>> {
+    +getPlans()
+    +subscribe()
+    +cancelSubscription()
+    +getCurrentSubscription()
+}
+
+' Services
+class SubscriptionService <<Service>> {
+    +subscribe()
+    +cancel()
+    +renew()
+    +activate()
+    +expire()
+}
+
+class BillingService <<Service>> {
+    +processPayment()
+    +reconcilePayment()
+}
+
+class PackGrantScheduler <<Scheduler>> {
+    +grantMonthlyPacks()
+}
+
+' Repository
+interface SubscriptionRepository <<Repository>> {
+    +save()
+    +findByCollectorId()
+    +findActiveSubscriptions()
+}
+
+' External BC
+interface CollectionACL {
+    +grantPacks()
+}
+
+' Entities
+class Subscription <<Entity>> {
+    -id : Long
+    -collectorId : Long
+    -plan : SubscriptionPlan
+    -status : SubscriptionStatus
+    -startedAt : LocalDate
+    -expiresAt : LocalDate
+    -autoRenew : Boolean
+}
+
+' Value Objects
+class SubscriptionPlan <<Value Object>> {
+    -name : String
+    -monthlyPrice : Money
+    -monthlyPacks : Integer
+}
+
+class Money <<Value Object>> {
+    -amount : Decimal
+    -currency : Currency
+}
+
+' Enums
+enum SubscriptionStatus {
+    PENDING
+    ACTIVE
+    CANCELLED
+    EXPIRED
+}
+
+enum Currency {
+    USD
+}
+
+' Relationships
+SubscriptionController --> SubscriptionService
+
+SubscriptionService --> BillingService
+SubscriptionService --> SubscriptionRepository
+
+BillingService --> SubscriptionRepository
+
+PackGrantScheduler --> SubscriptionRepository
+PackGrantScheduler --> CollectionACL
+
+SubscriptionRepository --> Subscription
+
+Subscription *-- SubscriptionPlan
+SubscriptionPlan *-- Money
+
+Subscription --> SubscriptionStatus
+Money --> Currency
+
+@enduml

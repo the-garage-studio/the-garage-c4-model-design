@@ -13,25 +13,33 @@ Container_Boundary(api, "REST API") {
 
     Component(admin_service, "Admin Service", "Java, Spring Service", "Coordinates administrative operations by delegating to the domain services of other bounded contexts.")
 
-    Component(user_service, "User Service", "Java, Spring Service", "[Identity & Access BC] Manages user profile data, role assignment, and account status.")
-    Component(catalog_service, "Catalog Service", "Java, Spring Service", "[Catalog BC] Applies business rules for card and pack availability, pricing, and rarity distribution.")
-    Component(subscription_service, "Subscription Service", "Java, Spring Service", "[Subscription BC] Manages the collector's subscription lifecycle.")
-    Component(listing_service, "Listing Service", "Java, Spring Service", "[Marketplace BC] Manages the lifecycle of a card listing, used here for moderation.")
-    Component(wallet_service, "Wallet Service", "Java, Spring Service", "[Wallet BC] Core ledger logic, used here for manual balance adjustments in support cases.")
-    Component(notification_service, "Notification Service", "Java, Spring Service", "[Notifications BC] Central entry point for sending notifications, used here to review a user's notification history.")
+    Component(identity_acl,"Identity Access ACL","Java Interface","Provides user management operations.")
+    Component(catalog_acl, "Catalog ACL","Java Interface","Provides catalog management operations.")
+
+    Component(subscription_acl,"Subscription ACL","Java Interface","Provides subscription management operations.")
+
+    Component(marketplace_acl,"Marketplace ACL","Java Interface","Provides marketplace moderation operations.")
+
+    Component(wallet_acl,"Wallet ACL","Java Interface","Provides wallet management operations.")
+
+    Component(notification_acl,"Notification ACL","Java Interface","Provides notification history queries.")
 }
 
-Rel(admin, admin_controller, "Manages users, catalog, subscriptions, moderates marketplace, and handles support cases", "JSON/HTTPS")
+Rel(admin, admin_controller,"Manages users, catalog, subscriptions, marketplace and support","JSON/HTTPS")
 
-Rel(admin_controller, admin_service, "Delegates administrative logic")
+Rel(admin_controller, admin_service,"Delegates administrative logic")
 
-Rel(admin_service, user_service, "Suspends / reactivates / changes roles")
-Rel(admin_service, catalog_service, "Creates / updates / deletes cards and packs")
-Rel(admin_service, subscription_service, "Reviews / overrides subscriptions")
-Rel(admin_service, listing_service, "Removes / flags marketplace listings")
-Rel(admin_service, wallet_service, "Manually adjusts ficha balance for support cases")
-Rel(admin_service, notification_service, "Reviews a collector's notification history")
+Rel(admin_service, identity_acl,"Suspends users / Reactivates users / Changes roles")
 
+Rel(admin_service, catalog_acl,"Creates / Updates / Deletes cards and packs")
+
+Rel(admin_service, subscription_acl,"Reviews / Overrides subscriptions")
+
+Rel(admin_service, marketplace_acl,"Removes / Flags marketplace listings")
+
+Rel(admin_service, wallet_acl,"Adjusts wallet balance")
+
+Rel(admin_service, notification_acl,"Retrieves notification history")
 
 SHOW_LEGEND()
 @enduml

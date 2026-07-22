@@ -1,0 +1,146 @@
+@startuml IdentityAccess-ClassDiagram
+
+skinparam classAttributeIconSize 0
+
+title The Garage - Identity & Access (Class Diagram)
+
+' Controllers
+class AuthController <<Controller>> {
+    +register()
+    +login()
+    +logout()
+    +refreshToken()
+    +forgotPassword()
+    +resetPassword()
+}
+
+class UserController <<Controller>> {
+    +getProfile()
+    +updateProfile()
+    +changePassword()
+}
+
+
+' Services
+class AuthService <<Service>> {
+    +register()
+    +authenticate()
+    +refreshToken()
+    +requestPasswordReset()
+    +resetPassword()
+}
+
+class UserService <<Service>> {
+    +getProfile()
+    +updateProfile()
+    +changePassword()
+    +changeRole()
+    +changeStatus()
+}
+
+class JwtProvider <<Component>> {
+    +generateToken()
+    +validateToken()
+    +extractUsername()
+}
+
+' Repository
+interface UserRepository <<Repository>> {
+    +findById(id)
+    +findByEmail(email)
+    +findByUsername(username)
+    +save(user)
+}
+
+' Domain Entities
+class User <<Entity>> {
+    -id : Long
+    -firstName : String
+    -lastName : String
+    -username : String
+    -email : Email
+    -password : Password
+    -role : RoleType
+    -status : UserStatus
+    -createdAt : LocalDateTime
+    -updatedAt : LocalDateTime
+
+    +activate()
+    +suspend()
+    +changeRole(role)
+    +changePassword(password)
+}
+
+class PasswordResetToken <<Entity>> {
+    -id : Long
+    -token : String
+    -expiresAt : LocalDateTime
+    -used : Boolean
+}
+
+class EmailVerificationToken <<Entity>> {
+    -id : Long
+    -token : String
+    -expiresAt : LocalDateTime
+    -verified : Boolean
+}
+
+' Value Objects
+class Email <<Value Object>> {
+    -value : String
+}
+
+class Password <<Value Object>> {
+    -hash : String
+}
+
+class JwtToken <<Value Object>> {
+    -accessToken : String
+    -refreshToken : String
+    -expiresAt : LocalDateTime
+}
+
+' Enums
+enum RoleType {
+    COLLECTOR
+    ADMIN
+}
+
+enum UserStatus {
+    ACTIVE
+    PENDING_VERIFICATION
+    SUSPENDED
+    DELETED
+}
+
+' External Service
+interface NotificationService {
+    +sendVerificationEmail()
+    +sendPasswordRecoveryEmail()
+}
+
+' Relationships
+AuthController --> AuthService
+UserController --> UserService
+
+AuthService --> JwtProvider
+AuthService --> UserRepository
+AuthService --> NotificationService
+
+UserService --> UserRepository
+
+UserRepository --> User
+
+User *-- Email
+User *-- Password
+User --> RoleType
+User --> UserStatus
+
+PasswordResetToken --> User
+EmailVerificationToken --> User
+
+AuthService ..> PasswordResetToken
+AuthService ..> EmailVerificationToken
+AuthService ..> JwtToken
+
+@enduml
